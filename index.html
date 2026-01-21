@@ -1,0 +1,156 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Forex Position Size Calculator</title>
+    <link rel="stylesheet" href="style.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+    <script src='https://cdnjs.cloudflare.com/ajax/libs/tesseract.js/4.1.1/tesseract.min.js'></script>
+</head>
+<body>
+    <div class="container">
+        <h1>Forex Position Size Calculator</h1>
+        
+        <div class="screenshot-section">
+            <div class="upload-area" id="uploadArea">
+                <i class="fas fa-cloud-upload-alt"></i>
+                <h3>Upload Screenshot</h3>
+                <p>Drag & Drop, Click to Browse, or <strong>Paste (Ctrl+V)</strong></p>
+                <input type="file" id="screenshotInput" accept="image/*">
+            </div>
+            
+            <div id="ocrStatus" style="display: none; text-align: center; margin-top: 15px; color: #3498db;">
+                <i class="fas fa-spinner fa-spin"></i> Reading prices from image...
+            </div>
+
+            <div class="ocr-results" id="ocrResults" style="display: none;">
+                <div class="ocr-edit-grid">
+                    <div class="ocr-field">
+                        <label>Pair</label>
+                        <input type="text" id="ocrPair" placeholder="???">
+                    </div>
+                    <div class="ocr-field">
+                        <label>Entry</label>
+                        <input type="number" id="ocrEntry" step="0.00001">
+                    </div>
+                    <div class="ocr-field">
+                        <label>SL</label>
+                        <input type="number" id="ocrSL" step="0.00001">
+                    </div>
+                    <div class="ocr-field">
+                        <label>TP</label>
+                        <input type="number" id="ocrTP" step="0.00001">
+                    </div>
+                </div>
+                <button id="applyOCR" class="btn-small">Apply Values</button>
+            </div>
+        </div>
+
+        <div class="calculator-grid">
+            <div class="inputs-section">
+                <div class="input-group">
+                    <label>Account Balance</label>
+                    <input type="number" id="accountBalance" value="5000" step="0.01">
+                </div>
+
+                <div class="input-row">
+                    <div class="input-group">
+                        <label>Risk Amount (USD)</label>
+                        <input type="number" id="riskAmount" value="50" step="0.01">
+                    </div>
+                    <div class="input-group">
+                        <label>Risk (%)</label>
+                        <input type="number" id="riskPercentage" value="1.00" step="0.01">
+                    </div>
+                </div>
+
+                <div class="input-row">
+                    <div class="input-group">
+                        <label>Trade Direction</label>
+                        <select id="tradeDirection">
+                            <option value="buy">Buy</option>
+                            <option value="sell">Sell</option>
+                        </select>
+                    </div>
+                    <div class="input-group">
+                        <label>Pair Type</label>
+                        <select id="pairType">
+                            <option value="major">Major</option>
+                            <option value="minor">Minor</option>
+                            <option value="exotic">Exotic</option>
+                            <option value="custom">Custom</option>
+                        </select>
+                    </div>
+                </div>
+
+                <div class="input-group">
+                    <label>Currency Pair</label>
+                    <div class="pair-input-container">
+                        <input type="text" id="currencyPair" value="USD/CAD" placeholder="Type pair name">
+                        <div class="pair-suggestions" id="pairSuggestions"></div>
+                    </div>
+                </div>
+
+                <div class="input-group">
+                    <label>Entry Price</label>
+                    <input type="number" id="entryPrice" value="" step="0.00001">
+                </div>
+
+                <div class="input-row">
+                    <div class="input-group">
+                        <label>Stop Loss Price</label>
+                        <input type="number" id="slPrice" value="" step="0.00001">
+                    </div>
+                    <div class="input-group">
+                        <label>SL Pips</label>
+                        <input type="number" id="slPips" value="" step="0.1">
+                    </div>
+                </div>
+
+                <div class="input-row">
+                    <div class="input-group">
+                        <label>Take Profit Price</label>
+                        <input type="number" id="tpPrice" value="" step="0.00001">
+                    </div>
+                    <div class="input-group">
+                        <label>TP Pips</label>
+                        <input type="number" id="tpPips" value="" step="0.1">
+                    </div>
+                </div>
+
+                <button id="calculateBtn" class="calculate-btn">Calculate</button>
+            </div>
+
+            <div class="results-section">
+                <div class="result-group">
+                    <label>Standard Lots</label>
+                    <div class="result-value" id="standardLots" data-copy="0">-</div>
+                </div>
+
+                <div class="result-group">
+                    <label>Entry Price</label>
+                    <div class="result-value" id="resultEntryPrice" data-copy="0">-</div>
+                </div>
+
+                <div class="result-group">
+                    <label>SL Price</label>
+                    <div class="result-value" id="resultSLPrice" data-copy="0">-</div>
+                </div>
+
+                <div class="result-group optional">
+                    <label>Position Size</label>
+                    <div class="result-value" id="positionSize" data-copy="0">-</div>
+                </div>
+
+                <div class="result-group optional">
+                    <label>Risk:Reward Ratio</label>
+                    <div class="result-value" id="riskRewardRatio" data-copy="0">-</div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script src="script.js"></script>
+</body>
+</html>
