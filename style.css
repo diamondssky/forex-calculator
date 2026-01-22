@@ -1,221 +1,93 @@
-/* Global Reset & Typography */
-* {
-    box-sizing: border-box;
-    margin: 0;
-    padding: 0;
+:root {
+    --bg: #050505;
+    --panel: #111;
+    --border: #333;
+    --text: #eee;
+    --muted: #666;
+    --accent: #2563eb;
+    --danger: #dc2626;
+    --success: #16a34a;
+    --warn: #ca8a04;
 }
 
-body {
-    font-family: 'Segoe UI', Roboto, Helvetica, Arial, sans-serif;
-    background-color: #f0f2f5;
-    color: #333;
-    line-height: 1.6;
-    padding: 20px;
+* { box-sizing: border-box; margin: 0; padding: 0; font-family: 'Courier New', Courier, monospace; letter-spacing: -0.5px; }
+
+body { background: var(--bg); color: var(--text); height: 100vh; display: flex; align-items: center; justify-content: center; }
+
+.app-container { width: 100%; max-width: 900px; border: 1px solid var(--border); background: var(--panel); padding: 20px; position: relative; }
+
+/* Status Bar */
+header { border-bottom: 1px solid var(--border); padding-bottom: 15px; margin-bottom: 20px; display: flex; justify-content: space-between; align-items: center; }
+.sys-name { font-weight: bold; font-size: 1.2rem; }
+.version { background: #333; font-size: 0.7rem; padding: 2px 6px; border-radius: 2px; margin-left: 10px; }
+.status-indicator { font-size: 0.8rem; font-weight: bold; padding: 4px 8px; border-radius: 2px; }
+.status-off { background: #333; color: #888; }
+.status-ok { background: rgba(22, 163, 74, 0.2); color: var(--success); border: 1px solid var(--success); }
+.status-err { background: rgba(220, 38, 38, 0.2); color: var(--danger); border: 1px solid var(--danger); }
+
+/* Grid Layout */
+.engine-grid { display: grid; grid-template-columns: 1fr 1fr 1.2fr; gap: 20px; }
+@media (max-width: 800px) { .engine-grid { grid-template-columns: 1fr; } }
+
+.col { display: flex; flex-direction: column; gap: 15px; }
+
+/* Inputs */
+label { display: block; font-size: 0.7rem; color: var(--muted); margin-bottom: 5px; font-weight: bold; }
+input, select { 
+    background: #000; border: 1px solid var(--border); color: var(--text); 
+    padding: 10px; width: 100%; font-size: 1rem; border-radius: 0;
+}
+input:focus, select:focus { outline: none; border-color: var(--accent); }
+input[readonly] { background: #1a1a1a; color: var(--muted); cursor: not-allowed; }
+
+.row { display: flex; gap: 10px; }
+.input-group { display: flex; }
+.input-group select { width: 60px; border-left: none; }
+.small { width: 80px; }
+.separator { height: 1px; background: #222; margin: 5px 0; }
+
+/* Toggle Switch */
+.toggle-wrapper { position: relative; display: inline-block; width: 50px; height: 24px; }
+.toggle-checkbox { opacity: 0; width: 0; height: 0; }
+.toggle-label { position: absolute; top: 0; left: 0; right: 0; bottom: 0; background-color: #333; cursor: pointer; transition: 0.2s; }
+.toggle-switch { position: absolute; content: ""; height: 18px; width: 18px; left: 3px; bottom: 3px; background-color: white; transition: 0.2s; }
+.toggle-checkbox:checked + .toggle-label { background-color: var(--accent); }
+.toggle-checkbox:checked + .toggle-label .toggle-switch { transform: translateX(26px); }
+.mode-readout { font-size: 0.8rem; font-weight: bold; margin-top: 5px; color: var(--muted); }
+
+/* Hint Box */
+.hint {
+    margin-top: 15px; padding: 10px; font-size: 0.75rem;
+    color: var(--warn); border-left: 3px solid var(--warn);
+    background: rgba(250, 204, 21, 0.05); line-height: 1.4;
+}
+.hint[data-block="true"] {
+    color: var(--danger); border-color: var(--danger);
+    background: rgba(220, 38, 38, 0.05);
 }
 
-.container {
-    max-width: 1000px;
-    margin: 0 auto;
-    background: #ffffff;
-    border-radius: 12px;
-    box-shadow: 0 4px 20px rgba(0, 0, 0, 0.08);
-    padding: 30px;
+/* Output Card */
+.output-card { 
+    background: #000; border: 1px solid var(--border); padding: 20px; 
+    text-align: center; cursor: pointer; margin-bottom: 15px; transition: border 0.2s;
 }
+.output-card:hover { border-color: var(--accent); }
+.lbl { color: var(--accent); font-size: 0.8rem; font-weight: bold; margin-bottom: 5px; }
+.val { font-size: 2.5rem; font-weight: bold; }
+.sub { font-size: 0.7rem; color: var(--muted); }
 
-h1 {
-    text-align: center;
-    color: #2c3e50;
-    margin-bottom: 30px;
-    font-size: 1.8rem;
-    font-weight: 600;
+.audit-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; border-top: 1px solid var(--border); padding-top: 10px; }
+.audit-item { display: flex; justify-content: space-between; font-size: 0.75rem; color: var(--muted); }
+.full-width { grid-column: span 2; border-top: 1px solid #222; padding-top: 5px; margin-top: 5px; }
+.mono { color: var(--text); }
+
+/* Blocker Overlay */
+.block-screen {
+    position: absolute; top: 0; left: 0; width: 100%; height: 100%;
+    background: rgba(0,0,0,0.9); z-index: 100;
+    display: flex; flex-direction: column; align-items: center; justify-content: center;
+    color: var(--danger); text-align: center;
 }
-
-/* ============================
-   Main Calculator Grid 
-   ============================
-*/
-.calculator-grid {
-    display: grid;
-    grid-template-columns: 1.2fr 0.8fr;
-    gap: 40px;
-}
-
-.input-row {
-    display: grid;
-    grid-template-columns: 1fr 1fr;
-    gap: 15px;
-}
-
-.input-group {
-    margin-bottom: 15px;
-    position: relative;
-}
-
-.input-group label {
-    display: block;
-    margin-bottom: 6px;
-    font-size: 0.9rem;
-    color: #64748b;
-    font-weight: 500;
-}
-
-input[type="number"],
-input[type="text"],
-select {
-    width: 100%;
-    padding: 12px 12px;
-    border: 1px solid #e2e8f0;
-    border-radius: 6px;
-    font-size: 1rem;
-    transition: border-color 0.2s;
-    background-color: #fff;
-    color: #333;
-}
-
-input:focus,
-select:focus {
-    outline: none;
-    border-color: #3498db;
-    box-shadow: 0 0 0 3px rgba(52, 152, 219, 0.1);
-}
-
-/* Pair Suggestions */
-.pair-input-container {
-    position: relative;
-}
-
-.pair-suggestions {
-    position: absolute;
-    top: 100%;
-    left: 0;
-    right: 0;
-    background: white;
-    border: 1px solid #e2e8f0;
-    border-radius: 6px;
-    max-height: 200px;
-    overflow-y: auto;
-    z-index: 100;
-    box-shadow: 0 4px 10px rgba(0,0,0,0.1);
-    display: none;
-}
-
-.suggestion-item {
-    padding: 10px 15px;
-    cursor: pointer;
-    font-size: 0.95rem;
-    border-bottom: 1px solid #f0f0f0;
-}
-
-.suggestion-item:hover {
-    background-color: #f7fafc;
-    color: #3498db;
-}
-
-/* Calculate Button */
-.calculate-btn {
-    width: 100%;
-    padding: 14px;
-    background: #2c3e50;
-    color: white;
-    border: none;
-    border-radius: 6px;
-    font-size: 1.1rem;
-    font-weight: 600;
-    cursor: pointer;
-    margin-top: 20px;
-    transition: background 0.2s;
-}
-
-.calculate-btn:hover {
-    background: #34495e;
-}
-
-/* ============================
-   Results Section
-   ============================
-*/
-.results-section {
-    background: #f8f9fa;
-    border-radius: 12px;
-    padding: 25px;
-    border: 1px solid #e9ecef;
-    align-self: start;
-}
-
-.result-group {
-    margin-bottom: 20px;
-    padding-bottom: 15px;
-    border-bottom: 1px solid #e2e8f0;
-}
-
-.result-group:last-child {
-    border-bottom: none;
-    margin-bottom: 0;
-    padding-bottom: 0;
-}
-
-.result-group label {
-    display: block;
-    font-size: 0.85rem;
-    text-transform: uppercase;
-    letter-spacing: 0.5px;
-    color: #718096;
-    margin-bottom: 5px;
-}
-
-.result-value {
-    font-size: 1.25rem;
-    font-weight: 700;
-    color: #2d3748;
-    cursor: pointer;
-    position: relative;
-    display: inline-block;
-}
-
-#standardLots {
-    font-size: 2.5rem;
-    color: #3498db;
-}
-
-/* "Copied" Tooltip */
-.result-value::after {
-    content: "Copied!";
-    position: absolute;
-    bottom: 100%;
-    left: 50%;
-    transform: translateX(-50%);
-    background: #333;
-    color: white;
-    padding: 4px 8px;
-    border-radius: 4px;
-    font-size: 0.75rem;
-    opacity: 0;
-    pointer-events: none;
-    transition: opacity 0.2s;
-    white-space: nowrap;
-}
-
-.result-value.copied::after {
-    opacity: 1;
-}
-
-.result-group.optional .result-value {
-    font-size: 1.1rem;
-    color: #4a5568;
-}
-
-/* Mobile Responsive */
-@media (max-width: 768px) {
-    .calculator-grid {
-        grid-template-columns: 1fr;
-        gap: 30px;
-    }
-
-    .container {
-        padding: 15px;
-    }
-    
-    #standardLots {
-        font-size: 2rem;
-    }
-}
+.hidden { display: none; }
+.block-screen i { font-size: 3rem; margin-bottom: 10px; }
+.block-screen h2 { font-size: 1.5rem; letter-spacing: 2px; }
