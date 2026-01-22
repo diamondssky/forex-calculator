@@ -5,48 +5,11 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Forex Position Size Calculator</title>
     <link rel="stylesheet" href="style.css">
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
-    <script src='https://cdnjs.cloudflare.com/ajax/libs/tesseract.js/4.1.1/tesseract.min.js'></script>
 </head>
 <body>
     <div class="container">
         <h1>Forex Position Size Calculator</h1>
         
-        <div class="screenshot-section">
-            <div class="upload-area" id="uploadArea">
-                <i class="fas fa-cloud-upload-alt"></i>
-                <h3>Upload Screenshot</h3>
-                <p>Drag & Drop, Click to Browse, or <strong>Paste (Ctrl+V)</strong></p>
-                <input type="file" id="screenshotInput" accept="image/*">
-            </div>
-            
-            <div id="ocrStatus" style="display: none; text-align: center; margin-top: 15px; color: #3498db;">
-                <i class="fas fa-spinner fa-spin"></i> Reading prices from image...
-            </div>
-
-            <div class="ocr-results" id="ocrResults" style="display: none;">
-                <div class="ocr-edit-grid">
-                    <div class="ocr-field">
-                        <label>Pair</label>
-                        <input type="text" id="ocrPair" placeholder="???">
-                    </div>
-                    <div class="ocr-field">
-                        <label>Entry</label>
-                        <input type="number" id="ocrEntry" step="0.00001">
-                    </div>
-                    <div class="ocr-field">
-                        <label>SL</label>
-                        <input type="number" id="ocrSL" step="0.00001">
-                    </div>
-                    <div class="ocr-field">
-                        <label>TP</label>
-                        <input type="number" id="ocrTP" step="0.00001">
-                    </div>
-                </div>
-                <button id="applyOCR" class="btn-small">Apply Values</button>
-            </div>
-        </div>
-
         <div class="calculator-grid">
             <div class="inputs-section">
                 <div class="input-group">
@@ -65,29 +28,18 @@
                     </div>
                 </div>
 
-                <div class="input-row">
-                    <div class="input-group">
-                        <label>Trade Direction</label>
-                        <select id="tradeDirection">
-                            <option value="buy">Buy</option>
-                            <option value="sell">Sell</option>
-                        </select>
-                    </div>
-                    <div class="input-group">
-                        <label>Pair Type</label>
-                        <select id="pairType">
-                            <option value="major">Major</option>
-                            <option value="minor">Minor</option>
-                            <option value="exotic">Exotic</option>
-                            <option value="custom">Custom</option>
-                        </select>
-                    </div>
+                <div class="input-group">
+                    <label>Trade Direction</label>
+                    <select id="tradeDirection">
+                        <option value="buy">Buy</option>
+                        <option value="sell">Sell</option>
+                    </select>
                 </div>
 
                 <div class="input-group">
                     <label>Currency Pair</label>
                     <div class="pair-input-container">
-                        <input type="text" id="currencyPair" value="USD/CAD" placeholder="Type pair name">
+                        <input type="text" id="currencyPair" value="USD/CAD" placeholder="Type pair name (e.g. EUR/USD)">
                         <div class="pair-suggestions" id="pairSuggestions"></div>
                     </div>
                 </div>
