@@ -4,16 +4,32 @@
     --border: #333;
     --text: #e5e5e5;
     --muted: #737373;
-    --accent: #2563eb;
+    --accent: #2563eb;       /* Primary Blue */
+    --highlight: #3b82f6;    /* Lighter Blue for Hovers */
     --danger: #ef4444;
     --success: #22c55e;
     --warn: #eab308;
-    --manual: #3b82f6;
+    --manual: #3b82f6;       /* Matches Status Indicator */
+    --input-bg: #000;
 }
 
 * { box-sizing: border-box; margin: 0; padding: 0; font-family: 'Courier New', Courier, monospace; }
 
 body { background: var(--bg); color: var(--text); min-height: 100vh; display: flex; align-items: center; justify-content: center; padding: 10px; }
+
+/* --- CUSTOM SCROLLBAR (Minimal & Dark) --- */
+::-webkit-scrollbar { width: 5px; }
+::-webkit-scrollbar-track { background: transparent; }
+::-webkit-scrollbar-thumb { background: #333; border-radius: 2px; }
+::-webkit-scrollbar-thumb:hover { background: #555; }
+
+/* REMOVE SPINNERS (Uncomment if you want to hide arrows) */
+/* input::-webkit-outer-spin-button,
+input::-webkit-inner-spin-button {
+  -webkit-appearance: none;
+  margin: 0;
+}
+input[type=number] { -moz-appearance: textfield; } */
 
 .app-container { width: 100%; max-width: 950px; border: 1px solid var(--border); background: var(--panel); padding: 20px; }
 
@@ -30,22 +46,75 @@ header { border-bottom: 1px solid var(--border); padding-bottom: 15px; margin-bo
 
 .col { display: flex; flex-direction: column; gap: 12px; }
 
-/* INPUTS */
+/* --- INPUTS & LABELS --- */
 label { display: block; font-size: 0.65rem; color: var(--muted); margin-bottom: 4px; font-weight: bold; letter-spacing: 0.5px; }
-input, select { 
-    background: #000; border: 1px solid var(--border); color: var(--text); 
-    padding: 12px; width: 100%; font-size: 0.95rem; border-radius: 4px; appearance: none;
-}
-input:focus, select:focus { outline: none; border-color: var(--accent); }
-input[readonly] { background: #1a1a1a; color: var(--muted); border-color: transparent; }
 
+input, select { 
+    background: var(--input-bg); 
+    border: 1px solid var(--border); 
+    color: var(--text); 
+    padding: 12px; 
+    width: 100%; 
+    font-size: 0.95rem; 
+    border-radius: 2px; /* Sharper edges for tech feel */
+    appearance: none;
+    transition: border-color 0.2s;
+}
+
+input:focus, select:focus { outline: none; border-color: var(--accent); }
+input[readonly] { background: #151515; color: var(--muted); border-color: transparent; cursor: default; }
+
+/* --- DROPDOWN STYLE --- */
+.custom-dropdown { position: relative; }
+.custom-dropdown input { 
+    cursor: text; 
+    padding-right: 30px; 
+    font-weight: bold;
+    color: #fff;
+    text-transform: uppercase; 
+}
+
+.dropdown-icon { 
+    position: absolute; right: 12px; top: 14px; font-size: 0.7rem; color: var(--muted); pointer-events: none; 
+}
+
+.options-list {
+    position: absolute; 
+    top: 100%; left: 0; right: 0;
+    background: #000; 
+    border: 1px solid var(--highlight); 
+    max-height: 60vh; /* Stretches to bottom */
+    overflow-y: auto; 
+    z-index: 999;
+    margin-top: 2px; 
+    box-shadow: 0 10px 25px rgba(0,0,0,0.8);
+}
+
+.option-item {
+    padding: 10px 12px; 
+    font-size: 0.9rem; 
+    cursor: pointer; 
+    border-bottom: 1px solid #111;
+    color: var(--muted);
+    transition: all 0.1s;
+}
+
+.option-item:hover { 
+    background: var(--highlight); 
+    color: #fff; 
+    padding-left: 18px;
+}
+
+.hidden { display: none; }
+
+/* --- LAYOUT UTILS --- */
 .row { display: flex; gap: 10px; }
 .input-group { display: flex; }
-.input-group select { width: 65px; border-left: none; }
+.input-group select { width: 65px; border-left: none; text-align: center; }
 .small { width: 90px; }
 .separator { height: 1px; background: #222; margin: 8px 0; }
 
-/* TOGGLE */
+/* --- TOGGLE SWITCH --- */
 .toggle-wrapper { position: relative; display: inline-block; width: 44px; height: 22px; }
 .toggle-checkbox { opacity: 0; width: 0; height: 0; }
 .toggle-label { position: absolute; top: 0; left: 0; right: 0; bottom: 0; background-color: #333; cursor: pointer; transition: 0.2s; border-radius: 2px;}
@@ -54,27 +123,26 @@ input[readonly] { background: #1a1a1a; color: var(--muted); border-color: transp
 .toggle-checkbox:checked + .toggle-label .toggle-switch { transform: translateX(22px); }
 .mode-readout { font-size: 0.75rem; font-weight: bold; margin-top: 5px; color: var(--muted); }
 
-/* HINTS */
+/* --- HINTS --- */
 .hint {
     margin-top: 10px; padding: 8px; font-size: 0.7rem;
     color: var(--warn); border-left: 2px solid var(--warn);
-    background: rgba(250, 204, 21, 0.05); line-height: 1.4;
+    background: rgba(234, 179, 8, 0.1); line-height: 1.4;
 }
-.hidden { display: none; }
 
-/* OUTPUT */
+/* --- OUTPUT CARD --- */
 .output-card { 
     background: #000; border: 1px solid var(--border); padding: 25px; 
-    text-align: center; margin-bottom: 15px; border-radius: 4px;
+    text-align: center; margin-bottom: 0; /* FLUSH WITH BOTTOM */ border-radius: 2px;
 }
-.lbl { color: var(--accent); font-size: 0.75rem; font-weight: bold; margin-bottom: 8px; }
-.val { font-size: 3rem; font-weight: bold; letter-spacing: -2px; line-height: 1; }
+.lbl { color: var(--accent); font-size: 0.75rem; font-weight: bold; margin-bottom: 8px; letter-spacing: 1px; }
+.val { font-size: 3.5rem; font-weight: bold; letter-spacing: -2px; line-height: 1; color: #fff; text-shadow: 0 0 10px rgba(255,255,255,0.1); }
 .sub { font-size: 0.7rem; color: var(--muted); margin-top: 8px; }
 
 .audit-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; border-top: 1px solid var(--border); padding-top: 12px; }
 .audit-item { display: flex; justify-content: space-between; font-size: 0.7rem; color: var(--muted); }
 .full-width { grid-column: span 2; border-top: 1px solid #222; padding-top: 8px; }
-.mono { color: var(--text); font-weight: bold; }
+.mono { color: var(--text); font-weight: bold; font-family: 'Courier New', Courier, monospace; }
 
 /* EQUITY DELTA UTILS */
 .text-profit { color: var(--success); }
