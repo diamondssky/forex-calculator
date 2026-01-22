@@ -75,3 +75,8 @@ input[readonly] { background: #1a1a1a; color: var(--muted); border-color: transp
 .audit-item { display: flex; justify-content: space-between; font-size: 0.7rem; color: var(--muted); }
 .full-width { grid-column: span 2; border-top: 1px solid #222; padding-top: 8px; }
 .mono { color: var(--text); font-weight: bold; }
+
+/* EQUITY DELTA UTILS */
+.text-profit { color: var(--success); }
+.text-drawdown { color: var(--danger); }
+.text-flat { color: var(--muted); }
