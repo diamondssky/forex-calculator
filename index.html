@@ -3,106 +3,137 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Forex Position Size Calculator</title>
+    <title>Risk Protocol v1.1</title>
     <link rel="stylesheet" href="style.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
 </head>
 <body>
-    <div class="container">
-        <h1>Forex Position Size Calculator</h1>
-        
-        <div class="calculator-grid">
-            <div class="inputs-section">
-                <div class="input-group">
-                    <label>Account Balance</label>
-                    <input type="number" id="accountBalance" value="5000" step="0.01">
+
+<div class="app-container">
+    <header>
+        <div class="status-bar">
+            <span class="sys-name">RISK ENGINE <span class="version">v1.1</span></span>
+            <span id="feed-status" class="status-indicator status-off">FEED: INIT</span>
+        </div>
+    </header>
+
+    <main>
+        <div id="block-screen" class="block-screen hidden">
+            <i class="fa-solid fa-ban"></i>
+            <h2 id="block-reason">BLOCKED</h2>
+        </div>
+
+        <section class="engine-grid">
+            
+            <div class="col setup-col">
+                <div class="form-group">
+                    <label>INSTRUMENT</label>
+                    <select id="currency-pair"></select>
+                </div>
+                <div class="form-group">
+                    <label>CONTRACT SIZE (LOCKED)</label>
+                    <select id="contract-size">
+                        <option value="100000">Standard (100k)</option>
+                        <option value="100">Gold Standard (100)</option>
+                        <option value="10000">Mini (10k)</option>
+                    </select>
+                </div>
+                <div class="separator"></div>
+                <div class="form-group">
+                    <label>EXECUTION MODE</label>
+                    <div class="toggle-wrapper">
+                        <input type="checkbox" id="exec-mode" class="toggle-checkbox">
+                        <label for="exec-mode" class="toggle-label">
+                            <span class="toggle-inner"></span>
+                            <span class="toggle-switch"></span>
+                        </label>
+                    </div>
+                    <div class="mode-readout" id="mode-text">LIMIT (PLANNING)</div>
+                </div>
+                
+                <div id="exec-hint" class="hint hidden" data-block="false"></div>
+            </div>
+
+            <div class="col input-col">
+                <div class="row">
+                    <div class="form-group">
+                        <label>CURRENT EQUITY (RISK BASE)</label>
+                        <input type="number" id="equity" value="25000">
+                    </div>
+                    <div class="form-group">
+                        <label>RISK</label>
+                        <div class="input-group">
+                            <input type="number" id="risk-value" value="1">
+                            <select id="risk-type">
+                                <option value="percent">%</option>
+                                <option value="usd">$</option>
+                            </select>
+                        </div>
+                    </div>
+                </div>
+                
+                <div class="form-group">
+                    <label>ACCOUNT SIZE (REF ONLY)</label>
+                    <input type="number" id="account-size" placeholder="Optional (For Drawdown Calc)">
                 </div>
 
-                <div class="input-row">
-                    <div class="input-group">
-                        <label>Risk Amount (USD)</label>
-                        <input type="number" id="riskAmount" value="50" step="0.01">
+                <div class="separator"></div>
+                
+                <div class="form-group">
+                    <label>ENTRY PRICE</label>
+                    <input type="number" id="entry-price" placeholder="0.00000">
+                </div>
+                <div class="row">
+                    <div class="form-group">
+                        <label>STOP LOSS PRICE</label>
+                        <input type="number" id="sl-price" placeholder="0.00000">
                     </div>
-                    <div class="input-group">
-                        <label>Risk (%)</label>
-                        <input type="number" id="riskPercentage" value="1.00" step="0.01">
+                    <div class="form-group small">
+                        <label>DIST (BROKER PTS)</label>
+                        <input type="number" id="sl-points" placeholder="0" readonly>
                     </div>
                 </div>
+                <div class="form-group">
+                    <label>TAKE PROFIT (OPTIONAL)</label>
+                    <input type="number" id="tp-price" placeholder="0.00000">
+                </div>
+            </div>
 
-                <div class="input-group">
-                    <label>Trade Direction</label>
-                    <select id="tradeDirection">
-                        <option value="buy">Buy</option>
-                        <option value="sell">Sell</option>
+            <div class="col output-col">
+                <div class="form-group">
+                    <label>RESULT VIEW</label>
+                    <select id="result-mode">
+                        <option value="loss">LOSS IF SL HIT</option>
+                        <option value="gain">GAIN IF TP HIT</option>
                     </select>
                 </div>
 
-                <div class="input-group">
-                    <label>Currency Pair</label>
-                    <div class="pair-input-container">
-                        <input type="text" id="currencyPair" value="USD/CAD" placeholder="Type pair name (e.g. EUR/USD)">
-                        <div class="pair-suggestions" id="pairSuggestions"></div>
+                <div class="output-card" onclick="copyToClipboard('res-lots')">
+                    <div class="lbl">SAFE LOT SIZE</div>
+                    <div class="val" id="res-lots">0.00</div>
+                    <div class="sub" id="buffer-msg">WAITING FOR INPUT</div>
+                </div>
+                
+                <div class="audit-grid">
+                    <div class="audit-item">
+                        <span id="res-risk-lbl">RISK</span>
+                        <span id="res-risk" class="mono">-</span>
+                    </div>
+                    <div class="audit-item">
+                        <span>POINT VAL</span>
+                        <span id="res-val-per-point" class="mono">-</span>
+                    </div>
+                    <div class="audit-item full-width">
+                        <span>DRAWDOWN (REF)</span>
+                        <span id="res-drawdown" class="mono">-</span>
                     </div>
                 </div>
-
-                <div class="input-group">
-                    <label>Entry Price</label>
-                    <input type="number" id="entryPrice" value="" step="0.00001">
-                </div>
-
-                <div class="input-row">
-                    <div class="input-group">
-                        <label>Stop Loss Price</label>
-                        <input type="number" id="slPrice" value="" step="0.00001">
-                    </div>
-                    <div class="input-group">
-                        <label>SL Pips</label>
-                        <input type="number" id="slPips" value="" step="0.1">
-                    </div>
-                </div>
-
-                <div class="input-row">
-                    <div class="input-group">
-                        <label>Take Profit Price</label>
-                        <input type="number" id="tpPrice" value="" step="0.00001">
-                    </div>
-                    <div class="input-group">
-                        <label>TP Pips</label>
-                        <input type="number" id="tpPips" value="" step="0.1">
-                    </div>
-                </div>
-
-                <button id="calculateBtn" class="calculate-btn">Calculate</button>
             </div>
 
-            <div class="results-section">
-                <div class="result-group">
-                    <label>Standard Lots</label>
-                    <div class="result-value" id="standardLots" data-copy="0">-</div>
-                </div>
+        </section>
+    </main>
+</div>
 
-                <div class="result-group">
-                    <label>Entry Price</label>
-                    <div class="result-value" id="resultEntryPrice" data-copy="0">-</div>
-                </div>
-
-                <div class="result-group">
-                    <label>SL Price</label>
-                    <div class="result-value" id="resultSLPrice" data-copy="0">-</div>
-                </div>
-
-                <div class="result-group optional">
-                    <label>Position Size</label>
-                    <div class="result-value" id="positionSize" data-copy="0">-</div>
-                </div>
-
-                <div class="result-group optional">
-                    <label>Risk:Reward Ratio</label>
-                    <div class="result-value" id="riskRewardRatio" data-copy="0">-</div>
-                </div>
-            </div>
-        </div>
-    </div>
-
-    <script src="script.js"></script>
+<script src="script.js"></script>
 </body>
 </html>
