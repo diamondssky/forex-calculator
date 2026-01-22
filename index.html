@@ -3,26 +3,20 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Risk Protocol v1.1</title>
+    <title>Risk Engine v2.2</title>
     <link rel="stylesheet" href="style.css">
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
 </head>
 <body>
 
 <div class="app-container">
     <header>
         <div class="status-bar">
-            <span class="sys-name">RISK ENGINE <span class="version">v1.1</span></span>
-            <span id="feed-status" class="status-indicator status-off">FEED: INIT</span>
+            <span class="sys-name">RISK ENGINE <span class="version">PRO</span></span>
+            <span class="status-indicator status-manual">FEED: MANUAL</span>
         </div>
     </header>
 
     <main>
-        <div id="block-screen" class="block-screen hidden">
-            <i class="fa-solid fa-ban"></i>
-            <h2 id="block-reason">BLOCKED</h2>
-        </div>
-
         <section class="engine-grid">
             
             <div class="col setup-col">
@@ -31,11 +25,10 @@
                     <select id="currency-pair"></select>
                 </div>
                 <div class="form-group">
-                    <label>CONTRACT SIZE (LOCKED)</label>
-                    <select id="contract-size">
+                    <label>CONTRACT SIZE</label>
+                    <select id="contract-size" disabled>
                         <option value="100000">Standard (100k)</option>
-                        <option value="100">Gold Standard (100)</option>
-                        <option value="10000">Mini (10k)</option>
+                        <option value="100">Gold (100)</option>
                     </select>
                 </div>
                 <div class="separator"></div>
@@ -50,20 +43,19 @@
                     </div>
                     <div class="mode-readout" id="mode-text">LIMIT (PLANNING)</div>
                 </div>
-                
-                <div id="exec-hint" class="hint hidden" data-block="false"></div>
+                <div id="exec-hint" class="hint hidden"></div>
             </div>
 
             <div class="col input-col">
                 <div class="row">
                     <div class="form-group">
-                        <label>CURRENT EQUITY (RISK BASE)</label>
-                        <input type="number" id="equity" value="25000">
+                        <label>CURRENT EQUITY</label>
+                        <input type="number" id="equity" value="25000" step="any">
                     </div>
                     <div class="form-group">
                         <label>RISK</label>
                         <div class="input-group">
-                            <input type="number" id="risk-value" value="1">
+                            <input type="number" id="risk-value" value="1" step="any">
                             <select id="risk-type">
                                 <option value="percent">%</option>
                                 <option value="usd">$</option>
@@ -73,42 +65,42 @@
                 </div>
                 
                 <div class="form-group">
-                    <label>ACCOUNT SIZE (REF ONLY)</label>
-                    <input type="number" id="account-size" placeholder="Optional (For Drawdown Calc)">
+                    <label>ACCOUNT SIZE (REF)</label>
+                    <input type="number" id="account-size" placeholder="Optional" step="any">
                 </div>
 
                 <div class="separator"></div>
                 
                 <div class="form-group">
                     <label>ENTRY PRICE</label>
-                    <input type="number" id="entry-price" placeholder="0.00000">
+                    <input type="number" id="entry-price" placeholder="0.00000" step="any">
                 </div>
                 <div class="row">
                     <div class="form-group">
-                        <label>STOP LOSS PRICE</label>
-                        <input type="number" id="sl-price" placeholder="0.00000">
+                        <label>STOP LOSS</label>
+                        <input type="number" id="sl-price" placeholder="0.00000" step="any">
                     </div>
                     <div class="form-group small">
-                        <label>DIST (BROKER PTS)</label>
+                        <label>DIST (PTS)</label>
                         <input type="number" id="sl-points" placeholder="0" readonly>
                     </div>
                 </div>
                 <div class="form-group">
-                    <label>TAKE PROFIT (OPTIONAL)</label>
-                    <input type="number" id="tp-price" placeholder="0.00000">
+                    <label>TAKE PROFIT (OPT)</label>
+                    <input type="number" id="tp-price" placeholder="0.00000" step="any">
                 </div>
             </div>
 
             <div class="col output-col">
                 <div class="form-group">
-                    <label>RESULT VIEW</label>
+                    <label>VIEW MODE</label>
                     <select id="result-mode">
                         <option value="loss">LOSS IF SL HIT</option>
                         <option value="gain">GAIN IF TP HIT</option>
                     </select>
                 </div>
 
-                <div class="output-card" onclick="copyToClipboard('res-lots')">
+                <div class="output-card" id="output-card">
                     <div class="lbl">SAFE LOT SIZE</div>
                     <div class="val" id="res-lots">0.00</div>
                     <div class="sub" id="buffer-msg">WAITING FOR INPUT</div>
@@ -120,7 +112,7 @@
                         <span id="res-risk" class="mono">-</span>
                     </div>
                     <div class="audit-item">
-                        <span>POINT VAL</span>
+                        <span>PIP VAL</span>
                         <span id="res-val-per-point" class="mono">-</span>
                     </div>
                     <div class="audit-item full-width">
