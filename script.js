@@ -12,18 +12,19 @@ document.addEventListener('DOMContentLoaded', () => {
         scalars: {
             'DEFAULT': 10000,
             'JPY': 100,
-            'XAU': 100
+            'METAL': 100 
         },
         thresholds: {
             'DEFAULT': 3,
             'JPY': 5,
-            'XAU': 50
+            'METAL': 50 
         }
     };
 
     // --- 2. DOM ELEMENTS ---
     const els = {
-        pair: document.getElementById('currency-pair'),
+        pairInput: document.getElementById('currency-pair'), 
+        pairOptions: document.getElementById('pair-options'),
         contract: document.getElementById('contract-size'),
         mode: document.getElementById('exec-mode'),
         modeText: document.getElementById('mode-text'),
@@ -50,23 +51,39 @@ document.addEventListener('DOMContentLoaded', () => {
 
     // --- 3. STATE ---
     const state = {
-        quoteToUsdRate: 1, // Default to 1
+        quoteToUsdRate: 1, 
         isJpy: false,
         isGold: false,
+        isSilver: false,
         lastInput: Date.now()
     };
 
     // --- 4. INIT ---
     function init() {
-        // Populate Instrument Dropdown
-        SCOPE.pairs.forEach(p => {
-            const opt = document.createElement('option');
-            opt.value = p;
-            opt.textContent = p;
-            els.pair.appendChild(opt);
+        // Build Custom Dropdown Options
+        renderOptions(SCOPE.pairs);
+
+        // Event: Search/Filter
+        els.pairInput.addEventListener('input', (e) => {
+            const term = e.target.value.toUpperCase();
+            const filtered = SCOPE.pairs.filter(p => p.includes(term));
+            renderOptions(filtered);
+            els.pairOptions.classList.remove('hidden');
         });
 
-        // Event Listeners
+        // Event: Show Options on Focus/Click
+        els.pairInput.addEventListener('focus', () => {
+            els.pairOptions.classList.remove('hidden');
+        });
+
+        // Event: Hide Options on Click Outside
+        document.addEventListener('click', (e) => {
+            if (!e.target.closest('#pair-wrapper')) {
+                els.pairOptions.classList.add('hidden');
+            }
+        });
+
+        // Event Listeners for Math
         const inputs = [els.equity, els.accountSize, els.riskVal, els.entry, els.sl, els.tp];
         inputs.forEach(el => {
             if(el) {
@@ -74,15 +91,12 @@ document.addEventListener('DOMContentLoaded', () => {
                     state.lastInput = Date.now();
                     calculate();
                 });
-                // Auto-clean long decimals on blur
                 el.addEventListener('blur', (e) => cleanInput(e.target));
             }
         });
         
         els.riskType.addEventListener('change', calculate);
         els.resultMode.addEventListener('change', calculate);
-        
-        els.pair.addEventListener('change', updateInstrument);
         
         if(els.mode) {
             els.mode.addEventListener('change', () => {
@@ -92,11 +106,33 @@ document.addEventListener('DOMContentLoaded', () => {
                 calculate();
             });
         }
-
-        updateInstrument(); 
     }
 
-    // --- 5. CLEAN INPUT HELPER ---
+    // --- 5. DROPDOWN LOGIC ---
+    function renderOptions(pairs) {
+        els.pairOptions.innerHTML = '';
+        if(pairs.length === 0) {
+            const div = document.createElement('div');
+            div.className = 'option-item';
+            div.textContent = "No results";
+            els.pairOptions.appendChild(div);
+            return;
+        }
+        pairs.forEach(p => {
+            const div = document.createElement('div');
+            div.className = 'option-item';
+            div.textContent = p;
+            div.addEventListener('click', () => selectInstrument(p));
+            els.pairOptions.appendChild(div);
+        });
+    }
+
+    function selectInstrument(pair) {
+        els.pairInput.value = pair;
+        els.pairOptions.classList.add('hidden');
+        updateInstrument();
+    }
+
     function cleanInput(el) {
         if (!el.value) return;
         const val = parseFloat(el.value);
@@ -107,27 +143,48 @@ document.addEventListener('DOMContentLoaded', () => {
 
     // --- 6. INSTRUMENT CONFIG ---
     async function updateInstrument() {
-        // Reset Rate default
         state.quoteToUsdRate = 1;
         
-        const pair = els.pair.value;
+        const pair = els.pairInput.value;
+        
+        // Safety: If empty, clear calculation and return
+        if(!pair) {
+            renderOutput(0, 0, 0, "WAITING FOR INPUT", "-", "RISK", "text-flat");
+            return;
+        }
+
         const quote = pair.slice(3);
 
         state.isJpy = quote === 'JPY';
         state.isGold = pair === 'XAUUSD';
+        state.isSilver = pair === 'XAGUSD';
         
-        if (state.isGold) state.scalar = SCOPE.scalars.XAU;
+        // 1. Set Scalar
+        if (state.isGold || state.isSilver) state.scalar = SCOPE.scalars.METAL;
         else if (state.isJpy) state.scalar = SCOPE.scalars.JPY;
         else state.scalar = SCOPE.scalars.DEFAULT;
 
-        const precision = state.isJpy ? "0.01" : (state.isGold ? "0.01" : "0.00001");
+        // 2. Set Decimals Step
+        const precision = state.isJpy ? "0.01" : (state.isGold || state.isSilver ? "0.01" : "0.00001");
         els.entry.step = els.sl.step = els.tp.step = precision;
 
-        if (state.isGold) els.contract.value = "100";
-        else els.contract.value = "100000";
+        // 3. Set Contract Size
+        if (state.isGold) {
+            els.contract.value = "100";
+        } 
+        else if (state.isSilver) {
+            let hasSilverOpt = Array.from(els.contract.options).some(o => o.value === "5000");
+            if (!hasSilverOpt) {
+                const opt = new Option("Silver (5000)", "5000");
+                els.contract.add(opt);
+            }
+            els.contract.value = "5000";
+        } 
+        else {
+            els.contract.value = "100000";
+        }
 
-        // SILENT API FETCH (BACKGROUND ONLY)
-        // Needed for Cross Pairs (e.g. AUDCAD -> CADUSD rate needed)
+        // 4. API Fetch for Cross Pairs
         if (quote !== 'USD') {
             try {
                 const res = await fetch(`https://api.frankfurter.app/latest?from=${quote}&to=USD`);
@@ -136,14 +193,14 @@ document.addEventListener('DOMContentLoaded', () => {
                     state.quoteToUsdRate = data.rates.USD;
                 }
             } catch (e) {
-                // Silent Fail - Defaults to 1.0
+                // Silent Fail
             }
         }
         
         calculate();
     }
 
-    // --- 7. HINTS ---
+    // --- 7. HINTS & MATH ---
     function checkHints(isMarket, points, threshold) {
         els.hintBox.innerHTML = "";
         els.hintBox.classList.add("hidden");
@@ -154,7 +211,6 @@ document.addEventListener('DOMContentLoaded', () => {
         }
     }
 
-    // --- 8. CORE MATH ENGINE ---
     function calculate() {
         const equity = parseFloat(els.equity.value) || 0;
         const riskInput = parseFloat(els.riskVal.value) || 0;
@@ -169,44 +225,37 @@ document.addEventListener('DOMContentLoaded', () => {
             return;
         }
 
-        // A) Risk
         const riskAmount = (els.riskType.value === 'percent') 
             ? equity * (riskInput / 100) 
             : riskInput;
 
-        // B) Points
         const rawDist = Math.abs(entry - sl);
         const points = rawDist * state.scalar;
         els.points.value = points.toFixed(1);
 
-        // C) Hints
         let threshold = SCOPE.thresholds.DEFAULT;
         if(state.isJpy) threshold = SCOPE.thresholds.JPY;
-        if(state.isGold) threshold = SCOPE.thresholds.XAU;
+        if(state.isGold || state.isSilver) threshold = SCOPE.thresholds.METAL;
         
         checkHints(isMarket, points, threshold);
 
-        // D) VPPL
         let vppl = 0;
-        if (els.pair.value.endsWith("USD")) {
+        if (els.pairInput.value.endsWith("USD")) {
             vppl = (1 / state.scalar) * contract;
         } 
-        else if (els.pair.value.startsWith("USD")) {
+        else if (els.pairInput.value.startsWith("USD")) {
             vppl = ((1 / state.scalar) * contract) / entry;
         } 
         else {
             const valInQuote = (1 / state.scalar) * contract;
-            valuePerPointPerLot = valInQuote * state.quoteToUsdRate;
-            vppl = valuePerPointPerLot;
+            vppl = valInQuote * state.quoteToUsdRate;
         }
 
-        // E) Lots
         let lots = 0;
         if (points > 0 && vppl > 0) {
             lots = riskAmount / (points * vppl);
         }
 
-        // F) Buffer & Rounding
         let msg = "LIMIT (EXACT)";
         if (isMarket) {
             lots = lots * 0.95; 
@@ -214,7 +263,6 @@ document.addEventListener('DOMContentLoaded', () => {
         }
         lots = Math.floor(lots * 100) / 100;
 
-        // G) Gain & Drawdown
         let displayVal = riskAmount;
         let displayLbl = "RISK";
         
@@ -225,7 +273,6 @@ document.addEventListener('DOMContentLoaded', () => {
             displayLbl = "POTENTIAL GAIN";
         }
 
-        // H) Equity Delta (Symmetric)
         const accountSize = parseFloat(els.accountSize.value) || 0;
         let deltaText = "-";
         let deltaClass = "text-flat";
@@ -239,10 +286,12 @@ document.addEventListener('DOMContentLoaded', () => {
             else if (deltaPct < 0) deltaClass = "text-drawdown";
         }
 
-        renderOutput(lots, displayVal, vppl, msg, deltaText, displayLbl, deltaClass);
+        let displayMultiplier = (state.isJpy || state.isGold || state.isSilver) ? 1 : 10;
+
+        renderOutput(lots, displayVal, vppl * displayMultiplier, msg, deltaText, displayLbl, deltaClass);
     }
 
-    function renderOutput(lots, val, vppl, msg, deltaText, lbl, deltaClass) {
+    function renderOutput(lots, val, vpplDisplay, msg, deltaText, lbl, deltaClass) {
         els.resLots.innerText = lots.toFixed(2);
         els.resLots.style.color = (lots === 0) ? "#737373" : "#e5e5e5";
         
@@ -250,10 +299,9 @@ document.addEventListener('DOMContentLoaded', () => {
         els.resRisk.innerText = "$" + val.toFixed(2);
         els.resRisk.style.color = (lbl.includes("GAIN")) ? "#22c55e" : "#e5e5e5";
 
-        els.resValPoint.innerText = "$" + (vppl * (state.isJpy || state.isGold ? 1 : 10)).toFixed(2); 
+        els.resValPoint.innerText = "$" + vpplDisplay.toFixed(2); 
         els.bufferMsg.innerText = msg;
         
-        // Render Equity Delta
         els.resEquityDelta.innerText = deltaText;
         els.resEquityDelta.className = "mono " + deltaClass;
     }
