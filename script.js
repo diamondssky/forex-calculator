@@ -106,9 +106,45 @@ document.addEventListener('DOMContentLoaded', () => {
                 calculate();
             });
         }
+
+        // Initialize Custom Spinners (Risk excluded automatically because markup was removed)
+        initSpinners();
     }
 
-    // --- 5. DROPDOWN LOGIC ---
+    // --- 5. LOGIC & HELPERS ---
+    
+    // CUSTOM SPINNER LOGIC
+    function initSpinners() {
+        const spinners = document.querySelectorAll('.spinner-wrapper');
+        spinners.forEach(wrapper => {
+            const input = wrapper.querySelector('input');
+            const up = wrapper.querySelector('.spin-up');
+            const down = wrapper.querySelector('.spin-down');
+
+            if(input && up && down) {
+                // Determine step dynamically if not set
+                const step = () => parseFloat(input.step) || (input.id.includes('price') ? 0.00001 : 1);
+                
+                up.addEventListener('click', () => {
+                    const cur = parseFloat(input.value) || 0;
+                    input.value = (cur + step()).toFixed(countDecimals(step()));
+                    calculate();
+                });
+
+                down.addEventListener('click', () => {
+                    const cur = parseFloat(input.value) || 0;
+                    input.value = (cur - step()).toFixed(countDecimals(step()));
+                    calculate();
+                });
+            }
+        });
+    }
+
+    function countDecimals(value) {
+        if(Math.floor(value) === value) return 0;
+        return value.toString().split(".")[1].length || 0;
+    }
+
     function renderOptions(pairs) {
         els.pairOptions.innerHTML = '';
         if(pairs.length === 0) {
