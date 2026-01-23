@@ -23,13 +23,13 @@ body { background: var(--bg); color: var(--text); min-height: 100vh; display: fl
 ::-webkit-scrollbar-thumb { background: #333; border-radius: 2px; }
 ::-webkit-scrollbar-thumb:hover { background: #555; }
 
-/* REMOVE SPINNERS (Uncomment if you want to hide arrows) */
-/* input::-webkit-outer-spin-button,
+/* REMOVE DEFAULT BROWSER SPINNERS */
+input::-webkit-outer-spin-button,
 input::-webkit-inner-spin-button {
   -webkit-appearance: none;
   margin: 0;
 }
-input[type=number] { -moz-appearance: textfield; } */
+input[type=number] { -moz-appearance: textfield; }
 
 .app-container { width: 100%; max-width: 950px; border: 1px solid var(--border); background: var(--panel); padding: 20px; }
 
@@ -56,13 +56,41 @@ input, select {
     padding: 12px; 
     width: 100%; 
     font-size: 0.95rem; 
-    border-radius: 2px; /* Sharper edges for tech feel */
+    border-radius: 2px; 
     appearance: none;
     transition: border-color 0.2s;
 }
 
 input:focus, select:focus { outline: none; border-color: var(--accent); }
 input[readonly] { background: #151515; color: var(--muted); border-color: transparent; cursor: default; }
+
+/* --- CUSTOM SPINNER SKIN --- */
+.spinner-wrapper { position: relative; display: flex; align-items: center; width: 100%; }
+.spinner-wrapper input { padding-right: 30px; } /* Make room for buttons */
+
+.spinner-btns {
+    position: absolute; right: 1px; top: 1px; bottom: 1px;
+    display: flex; flex-direction: column; width: 24px;
+    border-left: 1px solid var(--border);
+}
+
+.spin-btn {
+    flex: 1; 
+    background: #111; 
+    border: none; 
+    cursor: pointer; 
+    display: flex; align-items: center; justify-content: center;
+    transition: 0.1s;
+}
+.spin-btn:first-child { border-bottom: 1px solid #222; }
+.spin-btn:hover { background: var(--accent); }
+
+/* CSS Triangles for Arrows */
+.arrow-up { width: 0; height: 0; border-left: 4px solid transparent; border-right: 4px solid transparent; border-bottom: 5px solid #777; }
+.arrow-down { width: 0; height: 0; border-left: 4px solid transparent; border-right: 4px solid transparent; border-top: 5px solid #777; }
+
+.spin-btn:hover .arrow-up { border-bottom-color: white; }
+.spin-btn:hover .arrow-down { border-top-color: white; }
 
 /* --- DROPDOWN STYLE --- */
 .custom-dropdown { position: relative; }
@@ -99,6 +127,7 @@ input[readonly] { background: #151515; color: var(--muted); border-color: transp
     transition: all 0.1s;
 }
 
+/* Hover Effect: Blue Background, White Text */
 .option-item:hover { 
     background: var(--highlight); 
     color: #fff; 
